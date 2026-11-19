@@ -6,6 +6,8 @@ const app = express();
 
 app.use(cors());
 
+app.use(express.json());
+
 const quizzes = [
     {
         id: 1,
@@ -299,54 +301,87 @@ const quizzes = [
 app.get("/quiz/all", (req, res) => {
     try {
         const filterQuiz = quizzes.map((quiz) => {
-           return {
-            title: quiz.title,
-            id: quiz.id,
-            img: quiz.img
-        }
-    })
-
-     res.status(200).json({success:true,data:filterQuiz});
-    } catch (error) {
-       console.log(error);
-       res.status(500).json({
-        success:false,
-        message:"fail load quiz"
-       })
-    }
-})
-
-app.get('/question/:id',(req,res)=>{
-    try{
-        const id=req.params.id;
-        const quiz=quizzes.find((quiz)=>quiz.id==id);
-
-        // tansformation 
-        const questions=quiz?.questions?.map((question)=>{
             return {
-            id:question.id,
-            title:question.title,
-            options:question?.options.map((option)=>{
-              return  {
-              id:option.id,
-              title:option.title
-                }
-            })
-           }
+                title: quiz.title,
+                id: quiz.id,
+                img: quiz.img
+            }
         })
 
-        res.status(200).json({success:true,data:questions});
-       
+        res.status(200).json({ success: true, data: filterQuiz });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "fail load quiz"
+        })
+    }
+})
+
+app.get('/question/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const quiz = quizzes.find((quiz) => quiz.id == id);
+
+        // tansformation 
+        const questions = quiz?.questions?.map((question) => {
+            return {
+                id: question.id,
+                title: question.title,
+                options: question?.options.map((option) => {
+                    return {
+                        id: option.id,
+                        title: option.title
+                    }
+                })
+            }
+        })
+
+        res.status(200).json({ success: true, data: questions });
+
 
     }
-    catch(error){
+    catch (error) {
         console.log(error);
-        res.status(500).send({success:false,message:"fail to load question"});
+        res.status(500).send({ success: false, message: "fail to load question" });
     }
-   
+
 
 })
 
+
+app.post('/submit/quiz/:quizId', (req, res) => {
+    try {
+        const id = req.params.quizId;
+
+        const selected = req.body;
+        console.log(req.body);
+        //   search for quiz 
+        const quiz = quizzes.find((quiz) => id == quiz.id)
+        // 
+
+        const result = quiz?.questions?.map((ques) => {
+            const selectedOptionId = selected[ques.id];
+            let temp;
+            ques?.options.forEach((option) => {
+                if (option.isCorrect) {
+                    isCorrect = selectedOptionId == option.id ? true : false;
+                    temp = {
+                        questionId: ques.id,
+                        isCorrect: isCorrect,
+                        selectedOptionId: selectedOptionId,
+                        correctOptionId: option.id
+                    }
+                }
+            }
+            )
+            return temp;
+        })
+        res.status(200).json({ data: result });
+    } catch (error) {
+        console.log(error);
+    }
+})
 
 
 app.listen(PORT, () => {
