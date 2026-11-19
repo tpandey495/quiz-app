@@ -49,8 +49,6 @@ const Practice = () => {
                 let color = "black";
                 if (evaluation) {
                   const { isCorrect, selectedOptionId, correctOptionId } = evaluation.find((ques) => question.id == ques.questionId)
-                  // color = (option.id == selectedOptionId && isCorrect==false) && "red";
-                  // color = (option.id == correctOptionId && isCorrect) && "green";
                   if(option.id==correctOptionId || (option.id==selectedOptionId && isCorrect))
                     color="green";
                   else if(option.id==selectedOptionId)
